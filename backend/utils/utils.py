@@ -96,6 +96,7 @@ def get_current_user(
     if data is not None and "id" in data:
         user = Users.get_user_by_id(data["id"])
         if user is None:
+            print("Debug: User is None, raising HTTPException 401 (Invalid Token) => get_current_user")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=ERROR_MESSAGES.INVALID_TOKEN,
@@ -104,6 +105,7 @@ def get_current_user(
             Users.update_user_last_active_by_id(user.id)
         return user
     else:
+        print("RIEN NE MARCHE AU SECOURS")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=ERROR_MESSAGES.UNAUTHORIZED,
@@ -114,6 +116,7 @@ def get_current_user_by_api_key(api_key: str):
     user = Users.get_user_by_api_key(api_key)
 
     if user is None:
+        print("Debug: User is None, raising HTTPException 401 => get_current_user_by_api_key")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=ERROR_MESSAGES.INVALID_TOKEN,
@@ -126,6 +129,7 @@ def get_current_user_by_api_key(api_key: str):
 
 def get_verified_user(user=Depends(get_current_user)):
     if user.role not in {"user", "admin"}:
+        print("Debug: User is not an admin, raising HTTPException 401 => get_verified_user")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=ERROR_MESSAGES.ACCESS_PROHIBITED,
@@ -135,6 +139,7 @@ def get_verified_user(user=Depends(get_current_user)):
 
 def get_admin_user(user=Depends(get_current_user)):
     if user.role != "admin":
+        print("Debug: User is not an admin, raising HTTPException 401 => get_admin user")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=ERROR_MESSAGES.ACCESS_PROHIBITED,
