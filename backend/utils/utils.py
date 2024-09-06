@@ -10,6 +10,7 @@ from datetime import datetime, timedelta, UTC
 import jwt
 import uuid
 import logging
+import traceback
 from env import WEBUI_SECRET_KEY
 
 logging.getLogger("passlib").setLevel(logging.ERROR)
@@ -52,6 +53,7 @@ def decode_token(token: str) -> Optional[dict]:
         decoded = jwt.decode(token, SESSION_SECRET, algorithms=[ALGORITHM])
         return decoded
     except Exception:
+        traceback.print_exc()
         return None
 
 
@@ -78,11 +80,14 @@ def get_current_user(
 ):
     token = None
 
-    if auth_token is not None:
-        token = auth_token.credentials
+    # if auth_token is not None:
+    #     token = auth_token.credentials
+    #     print("token from credentials",token)
 
     if token is None and "token" in request.cookies:
         token = request.cookies.get("token")
+        print("token from cookie",token)
+
 
     if token is None:
         raise HTTPException(status_code=403, detail="Not authenticated")
@@ -93,8 +98,10 @@ def get_current_user(
 
     # auth by jwt token
     data = decode_token(token)
+    print("data",data)
     if data is not None and "id" in data:
         user = Users.get_user_by_id(data["id"])
+        print(user)
         if user is None:
             print("Debug: User is None, raising HTTPException 401 (Invalid Token) => get_current_user")
             raise HTTPException(
