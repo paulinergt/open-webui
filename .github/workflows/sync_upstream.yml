@@ -1,0 +1,29 @@
+name: Sync upstream and Open WebUI fork
+
+on:
+  push:
+      branches:
+        - main # or whatever branch you want to use
+  workflow_dispatch:
+  schedule:
+  - cron: "*/2 * * * *" #mettre un truc convenient pour faire des tests
+  
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Sync and merge upstream repository with the current repository
+        uses: dabreadman/sync-upstream-repo@v1.3.0
+        with:
+          upstream_repo: https://github.com/open-webui/open-webui.git
+          upstream_branch: main
+          downstream_branch: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # fetch_args: ${{ env.FETCH_ARGS }}
+          # merge_args: ${{ env.MERGE_ARGS }}
+          # push_args: ${{ env.PUSH_ARGS }}
+          spawn_logs: "true"
